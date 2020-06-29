@@ -1,15 +1,15 @@
 package tech.nautilus.msscbeerservice.web.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tech.nautilus.msscbeerservice.web.model.BeerDto;
 import tech.nautilus.msscbeerservice.web.model.BeerStyle;
 
@@ -17,19 +17,20 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(BeerController.class)
-class BeerControllerTest {
+class MvcExceptionHandlerTest {
+
+    BeerDto validBeer;
 
     @Autowired
     MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
-
-    BeerDto validBeer;
 
     @BeforeEach
     public void setUp() {
@@ -43,32 +44,18 @@ class BeerControllerTest {
     }
 
     @Test
-    void getBeerById() throws Exception {
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/beer/" + UUID.randomUUID().toString())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void saveNewBeer() throws Exception {
-
-        String beerDtoJson = objectMapper.writeValueAsString(validBeer);
+    public void handlePostWithNotValidObject_shouldReturnBadRequest() throws Exception {
+        //given
+        BeerDto beerDto = validBeer;
+        beerDto.setId(UUID.randomUUID());
+        beerDto.setBeerName(null);
+        String beerDtoJson = objectMapper.writeValueAsString(beerDto);
 
         mockMvc.perform(post("/api/v1/beer/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(beerDtoJson))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    void updateBeer() throws Exception {
-
-        String beerDtoJson = objectMapper.writeValueAsString(validBeer);
-
-        mockMvc.perform(put("/api/v1/beer/" + UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(beerDtoJson))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(
+                        "[\"beerDto.beerName: must not be blank\",\"beerDto.id: must be null\"]"));
     }
 }
