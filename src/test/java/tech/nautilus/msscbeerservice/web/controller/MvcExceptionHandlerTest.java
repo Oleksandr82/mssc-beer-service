@@ -43,7 +43,7 @@ class MvcExceptionHandlerTest {
                 .beerName("IPA")
                 .beerStyle(BeerStyle.ALE)
                 .price(BigDecimal.valueOf(11.45))
-                .upc(123456789L)
+                .upc("123456789")
                 .quantityOnHand(1)
                 .build();
     }
