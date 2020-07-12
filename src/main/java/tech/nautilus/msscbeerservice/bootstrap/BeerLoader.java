@@ -8,7 +8,8 @@ import tech.nautilus.msscbeerservice.repositories.BeerRepository;
 
 import java.math.BigDecimal;
 
-@Component
+// Disabled. It is initialized using SQL script
+//@Component
 @RequiredArgsConstructor
 public class BeerLoader implements CommandLineRunner {
 
