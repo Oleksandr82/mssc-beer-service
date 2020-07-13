@@ -1,7 +1,6 @@
 package tech.nautilus.msscbeerservice.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.nautilus.msscbeerservice.services.BeerService;
-import tech.nautilus.msscbeerservice.web.model.BeerDto;
-import tech.nautilus.msscbeerservice.web.model.BeerStyle;
+import tech.nautilus.brewery.model.BeerDto;
+import tech.nautilus.brewery.model.BeerStyle;
 
 import java.math.BigDecimal;
 import java.util.UUID;

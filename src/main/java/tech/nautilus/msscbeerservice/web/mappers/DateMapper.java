@@ -1,4 +1,4 @@
-package tech.nautilus.msscbeerservice.mappers;
+package tech.nautilus.msscbeerservice.web.mappers;
 
 import org.springframework.stereotype.Component;
 

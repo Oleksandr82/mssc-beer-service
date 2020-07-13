@@ -1,8 +1,6 @@
 package tech.nautilus.msscbeerservice.web.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tech.nautilus.msscbeerservice.services.BeerService;
-import tech.nautilus.msscbeerservice.web.model.BeerDto;
-import tech.nautilus.msscbeerservice.web.model.BeerStyle;
+import tech.nautilus.brewery.model.BeerDto;
+import tech.nautilus.brewery.model.BeerStyle;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -52,7 +50,7 @@ class BeerControllerTest {
     @Test
     void getBeerById() throws Exception {
 
-        given(beerService.getBeerById(any())).willReturn(validBeer);
+        given(beerService.getById(any(), any())).willReturn(validBeer);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/beer/" + UUID.randomUUID().toString())
                 .accept(MediaType.APPLICATION_JSON))

@@ -1,4 +1,4 @@
-package tech.nautilus.msscbeerservice.web.model;
+package tech.nautilus.brewery.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
