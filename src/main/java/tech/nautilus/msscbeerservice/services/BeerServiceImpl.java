@@ -44,27 +44,17 @@ public class BeerServiceImpl implements BeerService {
             beerPage = beerRepository.findAll(pageRequest);
         }
 
-        if (showInventoryOnHand){
-            beerPagedList = new BeerPagedList(beerPage
-                    .getContent()
-                    .stream()
-                    .map(beerMapper::beerToBeerDtoWithInventory)
-                    .collect(Collectors.toList()),
-                    PageRequest
-                            .of(beerPage.getPageable().getPageNumber(),
-                                    beerPage.getPageable().getPageSize()),
-                    beerPage.getTotalElements());
-        } else {
-            beerPagedList = new BeerPagedList(beerPage
-                    .getContent()
-                    .stream()
-                    .map(beerMapper::beerToBeerDto)
-                    .collect(Collectors.toList()),
-                    PageRequest
-                            .of(beerPage.getPageable().getPageNumber(),
-                                    beerPage.getPageable().getPageSize()),
-                    beerPage.getTotalElements());
-        }
+        beerPagedList = new BeerPagedList(beerPage
+                .getContent()
+                .stream()
+                .map(beer -> showInventoryOnHand ?
+                        beerMapper.beerToBeerDtoWithInventory(beer) :
+                        beerMapper.beerToBeerDto(beer))
+                .collect(Collectors.toList()),
+                PageRequest
+                        .of(beerPage.getPageable().getPageNumber(),
+                                beerPage.getPageable().getPageSize()),
+                beerPage.getTotalElements());
 
         return beerPagedList;
     }
@@ -72,15 +62,10 @@ public class BeerServiceImpl implements BeerService {
 //    @Cacheable(cacheNames = "beerCache", key = "#beerId", condition = "#showInventoryOnHand == false ")
     @Override
     public BeerDto getById(UUID beerId, Boolean showInventoryOnHand) {
-        if (showInventoryOnHand) {
-            return beerMapper.beerToBeerDtoWithInventory(
-                    beerRepository.findById(beerId).orElseThrow(NotFoundException::new)
-            );
-        } else {
-            return beerMapper.beerToBeerDto(
-                    beerRepository.findById(beerId).orElseThrow(NotFoundException::new)
-            );
-        }
+        Beer beer = beerRepository.findById(beerId).orElseThrow(NotFoundException::new);
+        return showInventoryOnHand ?
+                beerMapper.beerToBeerDtoWithInventory(beer) :
+                beerMapper.beerToBeerDto(beer);
     }
 
     @Override
