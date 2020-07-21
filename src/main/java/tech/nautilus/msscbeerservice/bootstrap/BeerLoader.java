@@ -9,7 +9,7 @@ import tech.nautilus.msscbeerservice.repositories.BeerRepository;
 import java.math.BigDecimal;
 
 // Disabled. It is initialized using SQL script
-//@Component
+@Component
 @RequiredArgsConstructor
 public class BeerLoader implements CommandLineRunner {
 
@@ -21,37 +21,40 @@ public class BeerLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        loadBeerObjects();
+        if (beerRepository.count() == 0) {
+            loadBeerObjects();
+        }
     }
 
     private void loadBeerObjects() {
-        if (beerRepository.count() == 0) {
+        beerRepository.save(Beer.builder()
+                .beerName("Mango Bobs")
+                .beerStyle("IPA")
+                .quantityToBrew(200)
+                .minOnHand(12)
+                .upc(BEER_1_UPC)
+                .price(new BigDecimal("12.95"))
+                .version(1L)
+                .build());
 
-            beerRepository.save(Beer.builder()
-                    .beerName("Mango Bobs")
-                    .beerStyle("IPA")
-                    .quantityToBrew(200)
-                    .minOnHand(12)
-                    .upc(BEER_1_UPC)
-                    .price(new BigDecimal("12.95"))
-                    .build());
+        beerRepository.save(Beer.builder()
+                .beerName("Galaxy Cat")
+                .beerStyle("PALE_ALE")
+                .quantityToBrew(200)
+                .minOnHand(12)
+                .upc(BEER_2_UPC)
+                .price(new BigDecimal("11.95"))
+                .version(1L)
+                .build());
 
-            beerRepository.save(Beer.builder()
-                    .beerName("Galaxy Cat")
-                    .beerStyle("PALE_ALE")
-                    .quantityToBrew(200)
-                    .minOnHand(12)
-                    .upc(BEER_2_UPC)
-                    .price(new BigDecimal("11.95"))
-                    .build());
-
-            beerRepository.save(Beer.builder()
-                    .beerName("No Hamers On The Bar")
-                    .beerStyle("PALE_ALE")
-                    .quantityToBrew(200)
-                    .minOnHand(12)
-                    .upc(BEER_3_UPC)
-                    .price(new BigDecimal("11.95"))
-                    .build());        }
+        beerRepository.save(Beer.builder()
+                .beerName("No Hamers On The Bar")
+                .beerStyle("PALE_ALE")
+                .quantityToBrew(200)
+                .minOnHand(12)
+                .upc(BEER_3_UPC)
+                .price(new BigDecimal("11.95"))
+                .version(1L)
+                .build());
     }
 }
