@@ -7,8 +7,8 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.nautilus.brewery.model.BeerDto;
-import tech.nautilus.events.BrewBeerEvent;
-import tech.nautilus.events.NewInventoryEvent;
+import tech.nautilus.brewery.events.BrewBeerEvent;
+import tech.nautilus.brewery.events.NewInventoryEvent;
 import tech.nautilus.msscbeerservice.domain.Beer;
 import tech.nautilus.msscbeerservice.repositories.BeerRepository;
 

@@ -6,7 +6,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import tech.nautilus.events.BrewBeerEvent;
+import tech.nautilus.brewery.events.BrewBeerEvent;
 import tech.nautilus.msscbeerservice.domain.Beer;
 import tech.nautilus.msscbeerservice.repositories.BeerRepository;
 import tech.nautilus.msscbeerservice.services.inventory.BeerInventoryService;
