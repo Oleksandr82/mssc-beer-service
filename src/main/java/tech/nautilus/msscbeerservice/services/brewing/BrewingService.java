@@ -28,6 +28,8 @@ public class BrewingService {
 
     @Scheduled(fixedRate = 5000)
     public void checkForLowInventory() {
+        log.debug("Check for low inventory...");
+
         List<Beer> beer = beerRepository.findAll();
 
         beer.stream()

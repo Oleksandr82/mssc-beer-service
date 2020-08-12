@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import tech.nautilus.brewery.model.BeerOrderDto;
 import tech.nautilus.msscbeerservice.repositories.BeerRepository;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -19,8 +18,8 @@ public class BeerOrderValidator {
     public Boolean validateOrder(BeerOrderDto beerOrderDto) {
 
         return beerOrderDto.getBeerOrderLines().stream()
-                .map(beerOrderLineDto -> beerRepository.findByUpc(beerOrderLineDto.getUpc()) == null)
-                .anyMatch(Predicate.isEqual(true));
+                .map(beerOrderLineDto -> beerRepository.findByUpc(beerOrderLineDto.getUpc()) != null)
+                .allMatch(Predicate.isEqual(true));
 
 //        AtomicInteger beersNotFound = new AtomicInteger();
 //        beerOrderDto.getBeerOrderLines().forEach(beerOrderLineDto -> {
