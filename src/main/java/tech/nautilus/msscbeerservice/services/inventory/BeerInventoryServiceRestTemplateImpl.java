@@ -22,7 +22,6 @@ import java.util.UUID;
 @Component
 public class BeerInventoryServiceRestTemplateImpl implements BeerInventoryService {
 
-    public static final String INVENTORY_PATH = "/api/v1/beer/{beerId}/inventory";
     private final RestTemplate restTemplate;
 
     private String beerInventoryServiceHost;
@@ -42,7 +41,7 @@ public class BeerInventoryServiceRestTemplateImpl implements BeerInventoryServic
     @Override
     public Integer getOnHandInventory(UUID beerId) {
 
-        log.debug("Calling Inventory Service");
+        log.debug("Calling Inventory Service (using RestTemplate) - BeerId: {}", beerId);
 
         ResponseEntity<List<BeerInventoryDto>> responseEntity = restTemplate
                 .exchange(beerInventoryServiceHost + INVENTORY_PATH, HttpMethod.GET, null,
@@ -53,6 +52,8 @@ public class BeerInventoryServiceRestTemplateImpl implements BeerInventoryServic
                 .stream()
                 .mapToInt(BeerInventoryDto::getQuantityOnHand)
                 .sum();
+
+        log.debug("BeerId: {} On hand is: {}", beerId, onHand);
 
         return onHand;
     }
