@@ -9,12 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class BeerMapperDecorator implements BeerMapper {
 
-    @Setter
     private BeerInventoryService beerInventoryService;
-
-    @Setter
     private BeerMapper mapper;
 
+    @Autowired
+    public void setBeerInventoryService(BeerInventoryService beerInventoryService) {
+        this.beerInventoryService = beerInventoryService;
+    }
+
+    @Autowired
+    public void setMapper(BeerMapper mapper) {
+        this.mapper = mapper;
+    }
 
 //    @Override
 //    public BeerDto beerToBeerDto(Beer beer) {
