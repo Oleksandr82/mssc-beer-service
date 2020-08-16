@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import static tech.nautilus.msscbeerservice.services.inventory.BeerInventoryService.INVENTORY_PATH;
 
-@FeignClient(name = "inventory-service")
+@FeignClient(name = "inventory-service", fallback = BeerInventoryServiceFailoverFeignClientImpl.class)
 public interface BeerInventoryServiceFeignClient {
 
     @RequestMapping(method = RequestMethod.GET, value = INVENTORY_PATH)
