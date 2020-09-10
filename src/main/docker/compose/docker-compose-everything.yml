@@ -1,0 +1,149 @@
+# Composes necessary environment and all services for the Beer Factory
+
+version: '3.8'
+
+services:
+
+  # MySQL Database
+  brewery-db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+    - ./data/:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pwd
+    ports:
+      - 3306:3306
+    security_opt:
+      - seccomp:unconfined
+
+  # JMS
+  activemq:
+    image: vromero/activemq-artemis
+    environment:
+      ARTEMIS_USERNAME: artemis
+      ARTEMIS_PASSWORD: simetraehcapa
+    ports:
+      - 8161:8161
+      - 61616:61616
+
+  # Zipkin for Distributed tracing
+  zipkin:
+    image: openzipkin/zipkin-slim
+    ports:
+      - 9411:9411
+
+  # Service Discovery
+  eureka:
+    image: brewery/mssc-brewery-eureka
+    ports:
+      - 8761:8761
+
+  # Configuration Service
+  config-server:
+    image: brewery/config-server
+    ports:
+      - 8888:8888
+    depends_on:
+      - eureka
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+
+  # Beer Inventory Service
+  inventory-service:
+    image: brewery/mssc-beer-inventory-service
+    restart: on-failure
+    ports:
+      - 8082:8082
+    depends_on:
+      - eureka
+      - config-server
+      - activemq
+      - brewery-db
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+      SPRING_PROFILES_ACTIVE: cfgsrv,local-discovery
+      SPRING_ZIPKIN_BASE-URL: http://zipkin:9411
+      SPRING_ARTEMIS_HOST: activemq
+#      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerinventoryservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://brewery-db:3306/beerinventoryservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+
+  # Beer Inventory Failover Service
+  inventory-failover-service:
+    image: brewery/mssc-beer-inventory-failover-service
+    restart: on-failure
+    ports:
+      - 8083:8083
+    depends_on:
+      - eureka
+      - activemq
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+      SPRING_PROFILES_ACTIVE: local-discovery
+      SPRING_ZIPKIN_BASE-URL: http://zipkin:9411
+      SPRING_ARTEMIS_HOST: activemq
+
+  # Beer Service
+  beer-service:
+    image: brewery/mssc-beer-service
+    restart: on-failure
+    ports:
+      - 8080:8080
+    depends_on:
+      - eureka
+      - config-server
+      - activemq
+      - brewery-db
+      - inventory-service
+      - inventory-failover-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+      SPRING_PROFILES_ACTIVE: cfgsrv,local-discovery
+      SPRING_ZIPKIN_BASE-URL: http://zipkin:9411
+      SPRING_ARTEMIS_HOST: activemq
+      SPRING_DATASOURCE_URL: jdbc:mysql://brewery-db:3306/beerservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      # The following property should be used for REST based inventory-service client.
+      # Feign clients are configured to use service discovery and do not need this
+      #SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8082
+
+  # Beer Order Service
+  beer-order-service:
+    image: brewery/mssc-beer-order-service
+    restart: on-failure
+    ports:
+      - 8081:8081
+    depends_on:
+      - eureka
+      - config-server
+      - activemq
+      - brewery-db
+      - beer-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+      SPRING_PROFILES_ACTIVE: cfgsrv,local-discovery
+      SPRING_ZIPKIN_BASE-URL: http://zipkin:9411
+      SPRING_ARTEMIS_HOST: activemq
+      SPRING_DATASOURCE_URL: jdbc:mysql://brewery-db:3306/beerorderservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      SFG_BREWERY_BEER-SERVICE-HOST: http://beer-service:8080
+
+  gateway:
+    image: brewery/mssc-brewery-gateway
+    restart: on-failure
+    ports:
+      - 9090:9090
+    depends_on:
+      - eureka
+      - inventory-service
+      - inventory-failover-service
+      - beer-order-service
+      - beer-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaUser:eurekaNotSoSecretPassword42@eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: 'true'
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411
